@@ -1,23 +1,28 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
+	"github.com/velicanercan/simple-user-mgmt/api"
+	"github.com/velicanercan/simple-user-mgmt/controller"
 	"github.com/velicanercan/simple-user-mgmt/infrastructure"
+	"github.com/velicanercan/simple-user-mgmt/repository"
+	"github.com/velicanercan/simple-user-mgmt/service"
 )
 
 func main() {
-	infrastructure.NewGinRouter()
-	dbType := os.Getenv("DB_TYPE")
-	switch dbType {
-	case "mysql":
-		infrastructure.NewMySQLDatabase()
-		fmt.Println("Connected to MySQL database")
-	case "mongodb":
-	default:
-		fmt.Println("No database connection")
-	}
+	router := infrastructure.NewGinRouter()
+
+	dbc := infrastructure.InitializeDB()
+	defer dbc.Close()
+	
+	userRepository := repository.NewUserRepository(dbc)
+	userService := service.NewUserService(userRepository)
+	userController := controller.NewUserController(userService)
+	userRoutes := api.NewUserRoutes(router, userController)
+	userRoutes.RegisterRoutes()
+
+	router.Gin.Run(":" + os.Getenv("SERVER_PORT"))
 
 }
 

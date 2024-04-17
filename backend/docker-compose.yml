@@ -9,6 +9,10 @@ services:
       - "MYSQL_USER=${DB_USER}"
       - "MYSQL_PASSWORD=${DB_PASSWORD}"
       - "MYSQL_DATABASE=${DB_NAME}"
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:${MONGO_PORT}"
   backend:
     build: 
       context: .
