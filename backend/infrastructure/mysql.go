@@ -71,8 +71,8 @@ func (db *MySQLDatabase) GetUser(id int) (*models.User, error) {
 }
 
 // UpdateUser updates a user in the MySQL database
-func (db *MySQLDatabase) UpdateUser(user *models.User) error {
-	result := db.DB.Save(user)
+func (db *MySQLDatabase) UpdateUser(id int, user *models.User) error {
+	result := db.DB.Model(&models.User{}).Where("id = ?", id).Updates(user)
 	if result.Error != nil {
 		return result.Error
 	}

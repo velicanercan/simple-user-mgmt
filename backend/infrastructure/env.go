@@ -1,8 +1,6 @@
 package infrastructure
 
 import (
-	"log"
-
 	"github.com/joho/godotenv"
 )
 
@@ -10,6 +8,6 @@ import (
 func LoadEnv() {
 	err := godotenv.Load(".env")
 	if err != nil {
-		log.Fatalf("unable to load .env file")
+		Log("panic", "Failed to load environment variables!", err.Error())
 	}
 }

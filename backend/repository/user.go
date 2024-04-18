@@ -46,8 +46,8 @@ func (r *UserRepository) GetAllUsers() ([]models.User, error) {
 }
 
 // UpdateUser updates a user
-func (r *UserRepository) UpdateUser(user models.User) error {
-	err := r.db.UpdateUser(&user)
+func (r *UserRepository) UpdateUser(id int, user models.User) error {
+	err := r.db.UpdateUser(id, &user)
 	if err != nil {
 		return err
 	}

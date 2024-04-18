@@ -13,4 +13,4 @@ RUN go install -mod=mod github.com/githubnemo/CompileDaemon
 ADD . .
 EXPOSE ${SERVER_PORT}
 
-ENTRYPOINT CompileDaemon --build="go build main.go" --command=./main
+ENTRYPOINT CompileDaemon --build="go build -o simple-user-mgmt main.go" --command=./simple-user-mgmt

@@ -27,6 +27,6 @@ func main() {
 }
 
 func init() {
-	infrastructure.LoadEnv()
 	infrastructure.InitializeLogger()
+	infrastructure.LoadEnv()
 }
