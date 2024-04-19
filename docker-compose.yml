@@ -14,15 +14,24 @@ services:
     ports:
       - "27017:${MONGO_PORT}"
   backend:
-    build: 
-      context: .
+    build:
+      context: ./backend
       dockerfile: server.Dockerfile
     ports:
       - "${SERVER_PORT}:${SERVER_PORT}"
     volumes:
-      - ".:/app"
+      - "./backend:/app"
     depends_on:
       - mysql
     links:
       - "mysql:database"
+    restart: always
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: web.Dockerfile
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    volumes:
+      - "./frontend:/app"
     restart: always
