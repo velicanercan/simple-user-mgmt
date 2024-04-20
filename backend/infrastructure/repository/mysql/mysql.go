@@ -1,10 +1,10 @@
-package infrastructure
+package mysql
 
 import (
 	"fmt"
 	"os"
 
-	"github.com/velicanercan/simple-user-mgmt/models"
+	"github.com/velicanercan/simple-user-mgmt/domain"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
@@ -28,7 +28,7 @@ func NewMySQLDatabase() *MySQLDatabase {
 		panic("Failed to connect to database!")
 	}
 	// migrate the schema
-	db.AutoMigrate(&models.User{})
+	db.AutoMigrate(&domain.User{})
 	return &MySQLDatabase{DB: db}
 }
 
@@ -42,7 +42,7 @@ func (db *MySQLDatabase) Close() {
 }
 
 // InsertUser inserts a user into the MySQL database
-func (db *MySQLDatabase) InsertUser(user *models.User) error {
+func (db *MySQLDatabase) InsertUser(user *domain.User) error {
 	result := db.DB.Create(user)
 	if result.Error != nil {
 		return result.Error
@@ -51,8 +51,8 @@ func (db *MySQLDatabase) InsertUser(user *models.User) error {
 }
 
 // GetAllUsers retrieves all users from the MySQL database
-func (db *MySQLDatabase) GetAllUsers() ([]models.User, error) {
-	var users []models.User
+func (db *MySQLDatabase) GetAllUsers() ([]domain.User, error) {
+	var users []domain.User
 	result := db.DB.Find(&users)
 	if result.Error != nil {
 		return users, result.Error
@@ -61,8 +61,8 @@ func (db *MySQLDatabase) GetAllUsers() ([]models.User, error) {
 }
 
 // GetUser retrieves a user from the MySQL database by ID
-func (db *MySQLDatabase) GetUser(id int) (*models.User, error) {
-	user := models.User{}
+func (db *MySQLDatabase) GetUser(id int) (*domain.User, error) {
+	user := domain.User{}
 	result := db.DB.First(&user, id)
 	if result.Error != nil {
 		return &user, result.Error
@@ -71,8 +71,8 @@ func (db *MySQLDatabase) GetUser(id int) (*models.User, error) {
 }
 
 // UpdateUser updates a user in the MySQL database
-func (db *MySQLDatabase) UpdateUser(id int, user *models.User) error {
-	result := db.DB.Model(&models.User{}).Where("id = ?", id).Updates(user)
+func (db *MySQLDatabase) UpdateUser(id int, user *domain.User) error {
+	result := db.DB.Model(&domain.User{}).Where("id = ?", id).Updates(user)
 	if result.Error != nil {
 		return result.Error
 	}
@@ -81,7 +81,7 @@ func (db *MySQLDatabase) UpdateUser(id int, user *models.User) error {
 
 // DeleteUser deletes a user from the MySQL database by ID
 func (db *MySQLDatabase) DeleteUser(id int) error {
-	result := db.DB.Delete(&models.User{}, id)
+	result := db.DB.Delete(&domain.User{}, id)
 	if result.Error != nil {
 		return result.Error
 	}

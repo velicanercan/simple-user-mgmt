@@ -1,4 +1,4 @@
-package infrastructure
+package logger
 
 import (
 	"os"
@@ -6,7 +6,7 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
-func InitializeLogger() error {
+func InitializeLogger() {
 	logrus.SetLevel(logrus.InfoLevel)
 
 	// Log as JSON instead of the default ASCII formatter.
@@ -20,8 +20,6 @@ func InitializeLogger() error {
 	} else {
 		logrus.Info("Failed to log to file, using default stderr")
 	}
-
-	return nil
 }
 
 // Log() logs stuff

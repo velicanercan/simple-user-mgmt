@@ -3,9 +3,9 @@ package service
 import (
 	"time"
 
+	"github.com/velicanercan/simple-user-mgmt/domain"
 	"github.com/velicanercan/simple-user-mgmt/errors"
-	"github.com/velicanercan/simple-user-mgmt/models"
-	"github.com/velicanercan/simple-user-mgmt/repository"
+	"github.com/velicanercan/simple-user-mgmt/infrastructure/repository"
 )
 
 // UserService is a layer between the repository and the controller
@@ -21,60 +21,88 @@ func NewUserService(repository repository.UserRepository) UserService {
 }
 
 // CreateUser creates a new user
-func (s *UserService) CreateUser(user models.User) error {
+func (s *UserService) CreateUser(user domain.User) error {
 	// check if the user already exists
-	_, err := s.repository.GetUserByID(user.ID)
+	_, err := s.repository.GetUser(user.ID)
 	if err == nil {
 		return errors.ErrUserAlreadyExists
 	}
-	// convert the birthdate string to a time.Time object
-	birthdate, err := time.Parse("2006-01-02", user.BirthDate)
+	// check if the mail already exists
+	err = s.CheckUserEmailUnique(user)
 	if err != nil {
-		return errors.ErrInvalidBirthDate
+		return err
 	}
-	// check user age is greater than 18
-	age := time.Since(birthdate).Hours() / 24 / 365
-	if age < 18 {
-		return errors.ErrUserAge
+	err = CheckUserAge(user.BirthDate)
+	if err != nil {
+		return err
 	}
-	return s.repository.CreateUser(user)
+	return s.repository.InsertUser(&user)
 }
 
 // GetUserByID returns a user by id
-func (s *UserService) GetUserByID(id int) (models.User, error) {
-	user, err := s.repository.GetUserByID(id)
+func (s *UserService) GetUserByID(id int) (domain.User, error) {
+	user, err := s.repository.GetUser(id)
 	if err != nil {
-		return models.User{}, errors.ErrUserNotFound
+		return domain.User{}, errors.ErrUserNotFound
 	}
-	return user, nil
+	return *user, nil
 }
 
 // GetAllUsers returns all users
-func (s *UserService) GetAllUsers() ([]models.User, error) {
+func (s *UserService) GetAllUsers() ([]domain.User, error) {
 	return s.repository.GetAllUsers()
 }
 
 // UpdateUser updates a user
-func (s *UserService) UpdateUser(id int, user models.User) error {
+func (s *UserService) UpdateUser(id int, user domain.User) error {
 	// check if the user already exists
-	_, err := s.repository.GetUserByID(id)
+	_, err := s.repository.GetUser(id)
 	if err != nil {
 		return errors.ErrUserAlreadyExists
 	}
-	// convert the birthdate string to a time.Time object
-	birthdate, err := time.Parse("2006-01-02", user.BirthDate)
+	// check if the mail already exists
+	err = s.CheckUserEmailUnique(user)
 	if err != nil {
-		return errors.ErrInvalidBirthDate
+		return err
 	}
 	// check user age is greater than 18
-	age := time.Since(birthdate).Hours() / 24 / 365
-	if age < 18 {
-		return errors.ErrUserAge
+	err = CheckUserAge(user.BirthDate)
+	if err != nil {
+		return err
 	}
-	return s.repository.UpdateUser(id, user)
+	return s.repository.UpdateUser(id, &user)
 }
 
 // DeleteUser deletes a user
 func (s *UserService) DeleteUser(id int) error {
 	return s.repository.DeleteUser(id)
+}
+
+// CheckUserAge checks if the user is older than 18
+func CheckUserAge(birthdate string) error {
+	// convert the birthdate string to a time.Time object
+	birthdateObj, err := time.Parse("2006-01-02", birthdate)
+	if err != nil {
+		return errors.ErrInvalidBirthDate
+	}
+	// check user age is greater than 18
+	age := time.Since(birthdateObj).Hours() / 24 / 365
+	if age < 18 {
+		return errors.ErrUserAge
+	}
+	return nil
+}
+
+// CheckUserExists checks if the user already exists
+func (s *UserService) CheckUserEmailUnique(user domain.User) error {
+	// check if the mail already exists
+	users, err := s.repository.GetAllUsers()
+	if err == nil {
+		for _, u := range users {
+			if u.Email == user.Email {
+				return errors.ErrUserMailExists
+			}
+		}
+	}
+	return nil
 }

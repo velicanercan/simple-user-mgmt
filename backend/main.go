@@ -6,18 +6,18 @@ import (
 	"github.com/velicanercan/simple-user-mgmt/api"
 	"github.com/velicanercan/simple-user-mgmt/controller"
 	"github.com/velicanercan/simple-user-mgmt/infrastructure"
-	"github.com/velicanercan/simple-user-mgmt/repository"
+	"github.com/velicanercan/simple-user-mgmt/infrastructure/repository"
+	"github.com/velicanercan/simple-user-mgmt/logger"
 	"github.com/velicanercan/simple-user-mgmt/service"
 )
 
 func main() {
 	router := infrastructure.NewGinRouter()
 
-	dbc := infrastructure.InitializeDB()
+	dbc := repository.InitializeDB()
 	defer dbc.Close()
-	
-	userRepository := repository.NewUserRepository(dbc)
-	userService := service.NewUserService(userRepository)
+
+	userService := service.NewUserService(dbc)
 	userController := controller.NewUserController(userService)
 	userRoutes := api.NewUserRoutes(router, userController)
 	userRoutes.RegisterRoutes()
@@ -27,6 +27,6 @@ func main() {
 }
 
 func init() {
-	infrastructure.InitializeLogger()
+	logger.InitializeLogger()
 	infrastructure.LoadEnv()
 }

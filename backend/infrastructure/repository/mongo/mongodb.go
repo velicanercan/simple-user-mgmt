@@ -1,11 +1,12 @@
-package infrastructure
+package mongo
 
 import (
 	"context"
 	"fmt"
 	"os"
 
-	"github.com/velicanercan/simple-user-mgmt/models"
+	"github.com/velicanercan/simple-user-mgmt/domain"
+	"github.com/velicanercan/simple-user-mgmt/logger"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -25,11 +26,11 @@ func NewMongoDBDatabase() *MongoDBDatabase {
 	URI := os.Getenv("MONGO_URI")
 	client, err := mongo.Connect(mongoCTX, options.Client().ApplyURI(URI))
 	if err != nil {
-		Log("Failed to connect to database!", "panic", err.Error())
+		logger.Log("Failed to connect to database!", "panic", err.Error())
 	}
 
 	if err := client.Ping(mongoCTX, readpref.Primary()); err != nil {
-		Log("Failed to ping database!", "panic", err.Error())
+		logger.Log("Failed to ping database!", "panic", err.Error())
 	}
 	return &MongoDBDatabase{Client: client}
 }
@@ -38,13 +39,13 @@ func NewMongoDBDatabase() *MongoDBDatabase {
 func (db *MongoDBDatabase) Close() {
 	err := db.Client.Disconnect(mongoCTX)
 	if err != nil {
-		Log("error", "Failed to close the database connection!", err.Error())
+		logger.Log("error", "Failed to close the database connection!", err.Error())
 	}
 }
 
 // TODO: Check all methods below
 // InsertUser inserts a user into the MongoDB database
-func (db *MongoDBDatabase) InsertUser(user *models.User) error {
+func (db *MongoDBDatabase) InsertUser(user *domain.User) error {
 	collection := db.Client.Database("simple-user-mgmt").Collection("users")
 	_, err := collection.InsertOne(mongoCTX, user)
 	if err != nil {
@@ -54,8 +55,8 @@ func (db *MongoDBDatabase) InsertUser(user *models.User) error {
 }
 
 // GetAllUsers retrieves all users from the MongoDB database
-func (db *MongoDBDatabase) GetAllUsers() ([]models.User, error) {
-	var users []models.User
+func (db *MongoDBDatabase) GetAllUsers() ([]domain.User, error) {
+	var users []domain.User
 	collection := db.Client.Database("simple-user-mgmt").Collection("users")
 	cursor, err := collection.Find(mongoCTX, bson.D{{}})
 	if err != nil {
@@ -70,8 +71,8 @@ func (db *MongoDBDatabase) GetAllUsers() ([]models.User, error) {
 }
 
 // GetUser retrieves a user from the MongoDB database by ID
-func (db *MongoDBDatabase) GetUser(id int) (*models.User, error) {
-	var user models.User
+func (db *MongoDBDatabase) GetUser(id int) (*domain.User, error) {
+	var user domain.User
 	collection := db.Client.Database("simple-user-mgmt").Collection("users")
 	err := collection.FindOne(mongoCTX, bson.M{"id": id}).Decode(&user)
 	if err != nil {
@@ -81,7 +82,7 @@ func (db *MongoDBDatabase) GetUser(id int) (*models.User, error) {
 }
 
 // UpdateUser updates a user in the MongoDB database
-func (db *MongoDBDatabase) UpdateUser(id int, user *models.User) error {
+func (db *MongoDBDatabase) UpdateUser(id int, user *domain.User) error {
 	collection := db.Client.Database("simple-user-mgmt").Collection("users")
 	filter := bson.M{"id": id}
 	update := bson.D{primitive.E{Key: "$set", Value: user}}
