@@ -27,6 +27,15 @@ func (s *UserService) CreateUser(user models.User) error {
 	if err == nil {
 		return errors.ErrUserAlreadyExists
 	}
+	// check if the mail already exists
+	users, err := s.repository.GetAllUsers()
+	if err == nil {
+		for _, u := range users {
+			if u.Email == user.Email {
+				return errors.ErrUserMailExists
+			}
+		}
+	}
 	// convert the birthdate string to a time.Time object
 	birthdate, err := time.Parse("2006-01-02", user.BirthDate)
 	if err != nil {
@@ -60,6 +69,15 @@ func (s *UserService) UpdateUser(id int, user models.User) error {
 	_, err := s.repository.GetUserByID(id)
 	if err != nil {
 		return errors.ErrUserAlreadyExists
+	}
+	// check if the mail already exists
+	users, err := s.repository.GetAllUsers()
+	if err == nil {
+		for _, u := range users {
+			if u.Email == user.Email && u.ID != id {
+				return errors.ErrUserMailExists
+			}
+		}
 	}
 	// convert the birthdate string to a time.Time object
 	birthdate, err := time.Parse("2006-01-02", user.BirthDate)
