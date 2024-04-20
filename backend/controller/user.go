@@ -4,8 +4,8 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
-	"github.com/velicanercan/simple-user-mgmt/logger"
 	"github.com/velicanercan/simple-user-mgmt/domain"
+	"github.com/velicanercan/simple-user-mgmt/logger"
 	"github.com/velicanercan/simple-user-mgmt/service"
 )
 
@@ -29,7 +29,7 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	if err := uc.Service.CreateUser(user); err != nil {
+	if err := uc.Service.CreateUser(c.Request.Context(), user); err != nil {
 		logger.Log("error", "Failed to create user", err.Error())
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -46,7 +46,7 @@ func (uc *UserController) GetUserByID(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Invalid ID"})
 		return
 	}
-	user, err := uc.Service.GetUserByID(idInt)
+	user, err := uc.Service.GetUserByID(c.Request.Context(), idInt)
 	if err != nil {
 		logger.Log("error", "Failed to get user by ID", err.Error())
 		c.JSON(500, gin.H{"error": err.Error()})
@@ -57,7 +57,7 @@ func (uc *UserController) GetUserByID(c *gin.Context) {
 
 // GetAllUsers returns all users
 func (uc *UserController) GetAllUsers(c *gin.Context) {
-	users, err := uc.Service.GetAllUsers()
+	users, err := uc.Service.GetAllUsers(c.Request.Context())
 	if err != nil {
 		logger.Log("error", "Failed to get all users", err.Error())
 		c.JSON(500, gin.H{"error": err.Error()})
@@ -81,7 +81,7 @@ func (uc *UserController) UpdateUser(c *gin.Context) {
 		c.JSON(400, gin.H{"error": err.Error()})
 		return
 	}
-	if err := uc.Service.UpdateUser(idInt, user); err != nil {
+	if err := uc.Service.UpdateUser(c.Request.Context(), idInt, user); err != nil {
 		logger.Log("error", "Failed to update user", err.Error())
 		c.JSON(500, gin.H{"error": err.Error()})
 		return
@@ -98,7 +98,7 @@ func (uc *UserController) DeleteUser(c *gin.Context) {
 		c.JSON(400, gin.H{"error": "Invalid ID"})
 		return
 	}
-	if err := uc.Service.DeleteUser(idInt); err != nil {
+	if err := uc.Service.DeleteUser(c.Request.Context(), idInt); err != nil {
 		logger.Log("error", "Failed to delete user", err.Error())
 		c.JSON(500, gin.H{"error": err.Error()})
 		return

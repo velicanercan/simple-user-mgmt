@@ -1,17 +1,21 @@
-FROM golang:latest
-RUN mkdir /app
+# Build Stage
+FROM golang:latest AS builder
 
-WORKDIR /app
+WORKDIR /go/src/app
 
-ADD go.mod .
-ADD go.sum .
+COPY . .
 
-
+# Download dependencies
 RUN go mod download
-RUN go install -mod=mod github.com/githubnemo/CompileDaemon
 
-ADD . .
-# FROM alpine:latest // multi-stage build
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -o simple-user-mgmt main.go
+
+# Final Stage
+FROM gcr.io/distroless/base-debian10
+
+COPY --from=builder /go/src/app/simple-user-mgmt /
+
 EXPOSE ${SERVER_PORT}
 
-ENTRYPOINT CompileDaemon --build="go build -o simple-user-mgmt main.go" --command=./simple-user-mgmt
+ENTRYPOINT ["/simple-user-mgmt"]

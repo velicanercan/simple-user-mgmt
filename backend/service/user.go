@@ -1,6 +1,7 @@
 package service
 
 import (
+	"context"
 	"time"
 
 	"github.com/velicanercan/simple-user-mgmt/domain"
@@ -21,14 +22,14 @@ func NewUserService(repository repository.UserRepository) UserService {
 }
 
 // CreateUser creates a new user
-func (s *UserService) CreateUser(user domain.User) error {
+func (s *UserService) CreateUser(ctx context.Context, user domain.User) error {
 	// check if the user already exists
-	_, err := s.repository.GetUser(user.ID)
+	_, err := s.repository.GetUser(ctx, user.ID)
 	if err == nil {
 		return errors.ErrUserAlreadyExists
 	}
 	// check if the mail already exists
-	err = s.CheckUserEmailUnique(user)
+	err = s.CheckUserEmailUnique(ctx, user, user.ID)
 	if err != nil {
 		return err
 	}
@@ -36,12 +37,12 @@ func (s *UserService) CreateUser(user domain.User) error {
 	if err != nil {
 		return err
 	}
-	return s.repository.InsertUser(&user)
+	return s.repository.InsertUser(ctx, &user)
 }
 
 // GetUserByID returns a user by id
-func (s *UserService) GetUserByID(id int) (domain.User, error) {
-	user, err := s.repository.GetUser(id)
+func (s *UserService) GetUserByID(ctx context.Context, id int) (domain.User, error) {
+	user, err := s.repository.GetUser(ctx, id)
 	if err != nil {
 		return domain.User{}, errors.ErrUserNotFound
 	}
@@ -49,19 +50,19 @@ func (s *UserService) GetUserByID(id int) (domain.User, error) {
 }
 
 // GetAllUsers returns all users
-func (s *UserService) GetAllUsers() ([]domain.User, error) {
-	return s.repository.GetAllUsers()
+func (s *UserService) GetAllUsers(ctx context.Context) ([]domain.User, error) {
+	return s.repository.GetAllUsers(ctx)
 }
 
 // UpdateUser updates a user
-func (s *UserService) UpdateUser(id int, user domain.User) error {
+func (s *UserService) UpdateUser(ctx context.Context, id int, user domain.User) error {
 	// check if the user already exists
-	_, err := s.repository.GetUser(id)
+	_, err := s.repository.GetUser(ctx, id)
 	if err != nil {
 		return errors.ErrUserAlreadyExists
 	}
 	// check if the mail already exists
-	err = s.CheckUserEmailUnique(user)
+	err = s.CheckUserEmailUnique(ctx, user, id)
 	if err != nil {
 		return err
 	}
@@ -70,12 +71,12 @@ func (s *UserService) UpdateUser(id int, user domain.User) error {
 	if err != nil {
 		return err
 	}
-	return s.repository.UpdateUser(id, &user)
+	return s.repository.UpdateUser(ctx, id, &user)
 }
 
 // DeleteUser deletes a user
-func (s *UserService) DeleteUser(id int) error {
-	return s.repository.DeleteUser(id)
+func (s *UserService) DeleteUser(ctx context.Context, id int) error {
+	return s.repository.DeleteUser(ctx, id)
 }
 
 // CheckUserAge checks if the user is older than 18
@@ -94,12 +95,12 @@ func CheckUserAge(birthdate string) error {
 }
 
 // CheckUserExists checks if the user already exists
-func (s *UserService) CheckUserEmailUnique(user domain.User) error {
+func (s *UserService) CheckUserEmailUnique(ctx context.Context, user domain.User, id int) error {
 	// check if the mail already exists
-	users, err := s.repository.GetAllUsers()
+	users, err := s.repository.GetAllUsers(ctx)
 	if err == nil {
 		for _, u := range users {
-			if u.Email == user.Email {
+			if u.Email == user.Email && u.ID != id {
 				return errors.ErrUserMailExists
 			}
 		}

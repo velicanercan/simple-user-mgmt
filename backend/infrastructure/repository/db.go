@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"context"
 	"os"
 
 	"github.com/velicanercan/simple-user-mgmt/domain"
@@ -10,17 +11,17 @@ import (
 
 type UserRepository interface {
 	// InsertUser inserts a user into the database
-	InsertUser(user *domain.User) error
+	InsertUser(ctx context.Context, user *domain.User) error
 	// GetAllUsers retrieves all users from the database
-	GetAllUsers() ([]domain.User, error)
+	GetAllUsers(ctx context.Context) ([]domain.User, error)
 	// GetUser retrieves a user from the database by ID
-	GetUser(id int) (*domain.User, error)
+	GetUser(ctx context.Context, id int) (*domain.User, error)
 	// UpdateUser updates a user in the database
-	UpdateUser(id int, user *domain.User) error
+	UpdateUser(ctx context.Context, id int, user *domain.User) error
 	// DeleteUser deletes a user from the database by ID
-	DeleteUser(id int) error
+	DeleteUser(ctx context.Context, id int) error
 	// Close closes the database connection
-	Close()
+	Close(ctx context.Context)
 }
 
 type Database struct {
@@ -28,7 +29,7 @@ type Database struct {
 }
 
 // InitializeDB initializes the database based on the DB_TYPE environment variable
-func InitializeDB() UserRepository {
+func InitializeDB(ctx context.Context) UserRepository {
 	// get the database type from the environment variable
 	DB_TYPE := os.Getenv("DB_TYPE")
 
@@ -37,7 +38,7 @@ func InitializeDB() UserRepository {
 	case "mysql":
 		return mysql.NewMySQLDatabase()
 	case "mongodb":
-		return mongo.NewMongoDBDatabase()
+		return mongo.NewMongoDBDatabase(ctx)
 	default:
 		panic("Invalid database type!")
 	}
