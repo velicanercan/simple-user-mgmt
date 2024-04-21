@@ -1,7 +1,10 @@
 package api
 
 import (
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 	"github.com/velicanercan/simple-user-mgmt/controller"
+	"github.com/velicanercan/simple-user-mgmt/docs"
 )
 
 // UserRoutes is a struct that holds the Handler and Controller
@@ -25,4 +28,8 @@ func (r *UserRoutes) RegisterRoutes() {
 	r.Handler.Gin.GET("/users", r.Controller.GetAllUsers)
 	r.Handler.Gin.PUT("/users/:id", r.Controller.UpdateUser)
 	r.Handler.Gin.DELETE("/users/:id", r.Controller.DeleteUser)
+	// swagger
+	docs.SwaggerInfo.BasePath = "/"
+	r.Handler.Gin.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+
 }

@@ -116,7 +116,21 @@ export default {
             });
             return error;
           });
-      }
+      } else {
+          let errString = 'Please fill in all required fields.';
+          for (let i in v$.value.$errors) {
+            if (v$.value.$errors[i].$validator === 'email') {
+              errString = 'Please enter a valid email address.';
+              break;
+            }
+          }
+          Swal.fire({
+            icon: "error",
+            title: errString,
+            showConfirmButton: false,
+            timer: 1000,
+          });
+        }
     };
 
     const resetForm = () => {

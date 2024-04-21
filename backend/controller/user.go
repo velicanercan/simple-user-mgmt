@@ -20,6 +20,15 @@ func NewUserController(service service.UserService) UserController {
 	}
 }
 
+// @Summary Creates a new user
+// @Description Creates a new user
+// @Accept json
+// @Produce json
+// @Param user body domain.User true "User to create"
+// @Success 201 {object} domain.User "User created"
+// @Failure 400 {object} error "Invalid request"
+// @Failure 500 {object} error "Internal server error"
+// @Router /users [post]
 // CreateUser creates a new user
 func (uc *UserController) CreateUser(c *gin.Context) {
 	var user domain.User
@@ -36,6 +45,15 @@ func (uc *UserController) CreateUser(c *gin.Context) {
 	c.JSON(201, user)
 }
 
+// @Summary Get a user by ID
+// @Description Get a user by ID
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 200 {object} domain.User "User found"
+// @Failure 400 {object} error "Invalid ID"
+// @Failure 500 {object} error "Internal server error"
+// @Router /users/{id} [get]
 // GetUserByID returns a user by id
 func (uc *UserController) GetUserByID(c *gin.Context) {
 	id := c.Param("id")
@@ -54,6 +72,13 @@ func (uc *UserController) GetUserByID(c *gin.Context) {
 	c.JSON(200, user)
 }
 
+// @Summary Get all users
+// @Description Get all users
+// @Accept json
+// @Produce json
+// @Success 200 {array} domain.User "Users found"
+// @Failure 500 {object} error "Internal server error"
+// @Router /users [get]
 // GetAllUsers returns all users
 func (uc *UserController) GetAllUsers(c *gin.Context) {
 	users, err := uc.Service.GetAllUsers(c.Request.Context())
@@ -65,6 +90,16 @@ func (uc *UserController) GetAllUsers(c *gin.Context) {
 	c.JSON(200, users)
 }
 
+// @Summary Update a user
+// @Description Update a user
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Param user body domain.User true "User to update"
+// @Success 200 {object} domain.User "User updated"
+// @Failure 400 {object} error "Invalid ID"
+// @Failure 500 {object} error "Internal server error"
+// @Router /users/{id} [put]
 // UpdateUser updates a user
 func (uc *UserController) UpdateUser(c *gin.Context) {
 	id := c.Param("id")
@@ -88,6 +123,15 @@ func (uc *UserController) UpdateUser(c *gin.Context) {
 	c.JSON(200, user)
 }
 
+// @Summary Delete a user
+// @Description Delete a user
+// @Accept json
+// @Produce json
+// @Param id path int true "User ID"
+// @Success 204 "User deleted"
+// @Failure 400 {object} error "Invalid ID"
+// @Failure 500 {object} error "Internal server error"
+// @Router /users/{id} [delete]
 // DeleteUser deletes a user
 func (uc *UserController) DeleteUser(c *gin.Context) {
 	id := c.Param("id")
