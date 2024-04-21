@@ -4,11 +4,11 @@ WORKDIR /app
 
 COPY package*.json /app
 
-RUN npm ci
+RUN yarn add global @vue/cli
+RUN yarn install
 
 COPY . .
-RUN npm run build
 
 EXPOSE ${FRONTEND_PORT}
 
-CMD ["npm", "run", "serve"]
+CMD [ "yarn", "serve"]
