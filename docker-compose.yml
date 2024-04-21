@@ -41,6 +41,7 @@ services:
       - GF_SECURITY_ADMIN_USER=${GRAFANA_USER}
     depends_on:
       - prometheus
+      - backend
     links:
       - "prometheus:prometheus"
   frontend:

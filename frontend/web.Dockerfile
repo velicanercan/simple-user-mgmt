@@ -1,19 +1,14 @@
-# Lighter Node.js base image
-FROM node:lts-alpine AS build-stage
+FROM node:lts-alpine
 
 WORKDIR /app
 
-COPY package*.json ./
+COPY package*.json /app
 
 RUN npm ci
+
 COPY . .
 RUN npm run build
 
-# Production stage
-FROM nginx:stable-alpine AS production-stage
-
-COPY --from=build-stage /app/dist /usr/share/nginx/html
-
 EXPOSE ${FRONTEND_PORT}
 
-CMD ["nginx", "-g", "daemon off;"]
+CMD ["npm", "run", "serve"]
