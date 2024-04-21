@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/sirupsen/logrus"
+	"github.com/velicanercan/simple-user-mgmt/prometheus"
 )
 
 type GinRouter struct {
@@ -16,6 +17,10 @@ type GinRouter struct {
 func NewGinRouter() GinRouter {
 	router := gin.New()
 
+	// Add Prometheus metrics
+	prometheus.UseMetrics(router)
+	prometheus.RegisterMetrics(router)
+	
 	router.GET("/healthcheck", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{"msg": "I'm alive!"})
 	})
