@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"syscall"
 	"time"
 
 	"github.com/velicanercan/simple-user-mgmt/api"
@@ -38,7 +39,10 @@ func main() {
 	}()
 
 	// Gracefully shutdown the server
-	HandleShutdown(server, userRepository)
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt, syscall.SIGTERM, syscall.SIGINT)
+
+	HandleShutdown(quit, server, userRepository)
 }
 
 func init() {
@@ -48,10 +52,7 @@ func init() {
 
 // HandleShutdown gracefully shuts down the server and closes the database connection
 // when a signal is received
-func HandleShutdown(server *http.Server, userRepository repository.UserRepository) {
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-
+func HandleShutdown(quit chan os.Signal, server *http.Server, userRepository repository.UserRepository) {
 	<-quit
 	logger.Log("info", "Server shutting down gracefully...")
 

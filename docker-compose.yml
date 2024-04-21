@@ -43,20 +43,15 @@ services:
       - prometheus
     links:
       - "prometheus:prometheus"
-  # frontend:
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "${FRONTEND_PORT}:${FRONTEND_PORT}"
-  #   volumes:
-  #     - "./frontend:/app"
-  #   restart: always
-
-  # healthcheck:
-  #   image: docker/compose:latest
-  #   depends_on:
-  #     - backend
-  # make requests to the backend until it responds
-  #   command: ["sh", "-c", "while ! curl -s http://backend:${SERVER_PORT}; do sleep 1; done"]
-  #   restart: on-failure
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: web.Dockerfile
+    ports:
+      - "${FRONTEND_PORT}:8080"
+    volumes:
+      - "./frontend:/app"
+    depends_on:
+      - backend
+    restart: always
+    

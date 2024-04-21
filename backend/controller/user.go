@@ -20,7 +20,6 @@ func NewUserController(service service.UserService) UserController {
 	}
 }
 
-// TODO: Implement the proper error messages for all the endpoints
 // CreateUser creates a new user
 func (uc *UserController) CreateUser(c *gin.Context) {
 	var user domain.User

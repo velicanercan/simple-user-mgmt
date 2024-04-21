@@ -41,7 +41,6 @@ func (db *MongoDBDatabase) Close(ctx context.Context) {
 	}
 }
 
-// TODO: Check all methods below
 // InsertUser inserts a user into the MongoDB database
 func (db *MongoDBDatabase) InsertUser(ctx context.Context, user *domain.User) error {
 	collection := db.Client.Database(os.Getenv("MONGO_DB_NAME")).Collection("users")

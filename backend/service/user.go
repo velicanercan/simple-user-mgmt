@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/velicanercan/simple-user-mgmt/domain"
 	"github.com/velicanercan/simple-user-mgmt/errors"
 	"github.com/velicanercan/simple-user-mgmt/infrastructure/repository"
@@ -29,7 +30,7 @@ func (s *UserService) CreateUser(ctx context.Context, user domain.User) error {
 		return errors.ErrUserAlreadyExists
 	}
 	// check if the mail already exists
-	err = s.CheckUserEmailUnique(ctx, user, user.ID)
+	err = s.CheckUserEmail(ctx, user, user.ID)
 	if err != nil {
 		return err
 	}
@@ -62,7 +63,7 @@ func (s *UserService) UpdateUser(ctx context.Context, id int, user domain.User) 
 		return errors.ErrUserAlreadyExists
 	}
 	// check if the mail already exists
-	err = s.CheckUserEmailUnique(ctx, user, id)
+	err = s.CheckUserEmail(ctx, user, id)
 	if err != nil {
 		return err
 	}
@@ -94,8 +95,8 @@ func CheckUserAge(birthdate string) error {
 	return nil
 }
 
-// CheckUserExists checks if the user already exists
-func (s *UserService) CheckUserEmailUnique(ctx context.Context, user domain.User, id int) error {
+// CheckUserEmail checks the user email
+func (s *UserService) CheckUserEmail(ctx context.Context, user domain.User, id int) error {
 	// check if the mail already exists
 	users, err := s.repository.GetAllUsers(ctx)
 	if err == nil {
@@ -104,6 +105,12 @@ func (s *UserService) CheckUserEmailUnique(ctx context.Context, user domain.User
 				return errors.ErrUserMailExists
 			}
 		}
+	}
+	// validate the user mail
+	validator := validator.New()
+	err = validator.Struct(user)
+	if err != nil {
+		return errors.ErrInvalidEmail
 	}
 	return nil
 }
