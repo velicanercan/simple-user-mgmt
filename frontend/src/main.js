@@ -19,6 +19,9 @@ const router = createRouter({
     { path: '/create', component: UserCreate, meta: { title: 'New User' } },
     { path: '/edit/:id', component: UserEdit, meta: { title: 'Edit User' } },
     { path: '/show/:id', component: UserShow, meta: { title: 'User Details' } },
+    // redirect to home page if route not found
+    { path: '/:pathMatch(.*)*', redirect: '/'}
+    ,
   ],
 });
 router.beforeEach((to, from, next) => {

@@ -2,17 +2,16 @@ package api
 
 import (
 	"github.com/velicanercan/simple-user-mgmt/controller"
-	"github.com/velicanercan/simple-user-mgmt/infrastructure"
 )
 
 // UserRoutes is a struct that holds the Handler and Controller
 type UserRoutes struct {
-	Handler    infrastructure.GinRouter
+	Handler    GinRouter
 	Controller controller.UserController
 }
 
 // NewUserRoutes returns a UserRoutes instance
-func NewUserRoutes(handler infrastructure.GinRouter, controller controller.UserController) UserRoutes {
+func NewUserRoutes(handler GinRouter, controller controller.UserController) UserRoutes {
 	return UserRoutes{
 		Handler:    handler,
 		Controller: controller,
